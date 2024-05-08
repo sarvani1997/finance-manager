@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@prisma/client':
+    specifier: 5.13.0
+    version: 5.13.0(prisma@5.13.0)
   '@remix-run/node':
     specifier: ^2.9.1
     version: 2.9.1(typescript@5.4.5)
@@ -14,6 +17,9 @@ dependencies:
   '@remix-run/serve':
     specifier: ^2.9.1
     version: 2.9.1(typescript@5.4.5)
+  csvtojson:
+    specifier: ^2.0.10
+    version: 2.0.10
   isbot:
     specifier: ^4.1.0
     version: 4.4.0
@@ -23,6 +29,9 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.3.1(react@18.3.1)
+  remix-auth:
+    specifier: ^3.6.0
+    version: 3.6.0(@remix-run/react@2.9.1)(@remix-run/server-runtime@2.9.1)
 
 devDependencies:
   '@remix-run/dev':
@@ -58,6 +67,9 @@ devDependencies:
   eslint-plugin-react-hooks:
     specifier: ^4.6.0
     version: 4.6.2(eslint@8.57.0)
+  prisma:
+    specifier: 5.13.0
+    version: 5.13.0
   typescript:
     specifier: ^5.1.6
     version: 5.4.5
@@ -1018,6 +1030,46 @@ packages:
     dev: true
     optional: true
 
+  /@prisma/client@5.13.0(prisma@5.13.0):
+    resolution: {integrity: sha512-uYdfpPncbZ/syJyiYBwGZS8Gt1PTNoErNYMuqHDa2r30rNSFtgTA/LXsSk55R7pdRTMi5pHkeP9B14K6nHmwkg==}
+    engines: {node: '>=16.13'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      prisma: 5.13.0
+    dev: false
+
+  /@prisma/debug@5.13.0:
+    resolution: {integrity: sha512-699iqlEvzyCj9ETrXhs8o8wQc/eVW+FigSsHpiskSFydhjVuwTJEfj/nIYqTaWFYuxiWQRfm3r01meuW97SZaQ==}
+
+  /@prisma/engines-version@5.13.0-23.b9a39a7ee606c28e3455d0fd60e78c3ba82b1a2b:
+    resolution: {integrity: sha512-AyUuhahTINGn8auyqYdmxsN+qn0mw3eg+uhkp8zwknXYIqoT3bChG4RqNY/nfDkPvzWAPBa9mrDyBeOnWSgO6A==}
+
+  /@prisma/engines@5.13.0:
+    resolution: {integrity: sha512-hIFLm4H1boj6CBZx55P4xKby9jgDTeDG0Jj3iXtwaaHmlD5JmiDkZhh8+DYWkTGchu+rRF36AVROLnk0oaqhHw==}
+    requiresBuild: true
+    dependencies:
+      '@prisma/debug': 5.13.0
+      '@prisma/engines-version': 5.13.0-23.b9a39a7ee606c28e3455d0fd60e78c3ba82b1a2b
+      '@prisma/fetch-engine': 5.13.0
+      '@prisma/get-platform': 5.13.0
+
+  /@prisma/fetch-engine@5.13.0:
+    resolution: {integrity: sha512-Yh4W+t6YKyqgcSEB3odBXt7QyVSm0OQlBSldQF2SNXtmOgMX8D7PF/fvH6E6qBCpjB/yeJLy/FfwfFijoHI6sA==}
+    dependencies:
+      '@prisma/debug': 5.13.0
+      '@prisma/engines-version': 5.13.0-23.b9a39a7ee606c28e3455d0fd60e78c3ba82b1a2b
+      '@prisma/get-platform': 5.13.0
+
+  /@prisma/get-platform@5.13.0:
+    resolution: {integrity: sha512-B/WrQwYTzwr7qCLifQzYOmQhZcFmIFhR81xC45gweInSUn2hTEbfKUPd2keAog+y5WI5xLAFNJ3wkXplvSVkSw==}
+    dependencies:
+      '@prisma/debug': 5.13.0
+
   /@remix-run/dev@2.9.1(@remix-run/react@2.9.1)(@remix-run/serve@2.9.1)(typescript@5.4.5)(vite@5.2.11):
     resolution: {integrity: sha512-/YhegnnRrarsqU+11+HdGwjcIT1KgkS9L7kWCM0+ivDvyiBYAuI6xbPG/q/FY6LqLAPYeOxsJmUNl+aj+yMltA==}
     engines: {node: '>=18.0.0'}
@@ -1905,6 +1957,10 @@ packages:
       readable-stream: 3.6.2
     dev: true
 
+  /bluebird@3.7.2:
+    resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
+    dev: false
+
   /body-parser@1.20.2:
     resolution: {integrity: sha512-ml9pReCu3M61kGlqoTm2umSXTlRTuGTx0bfYj+uIUKKYycG5NtSbeetV3faSU6R7ajOPw0g/J1PvK4qNy7s5bA==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
@@ -2213,6 +2269,16 @@ packages:
   /csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
     dev: true
+
+  /csvtojson@2.0.10:
+    resolution: {integrity: sha512-lUWFxGKyhraKCW8Qghz6Z0f2l/PqB1W3AO0HKJzGIQ5JRSlR651ekJDiGJbBT4sRNNv5ddnSGVEnsxP9XRCVpQ==}
+    engines: {node: '>=4.0.0'}
+    hasBin: true
+    dependencies:
+      bluebird: 3.7.2
+      lodash: 4.17.21
+      strip-bom: 2.0.0
+    dev: false
 
   /damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -3700,6 +3766,10 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /is-utf8@0.2.1:
+    resolution: {integrity: sha512-rMYPYvCzsXywIsldgLaSoPlw5PfoB/ssr7hY4pLfcodrA5M/eArza1a9VmTiNIBNMjOGr1Ow9mTyU2o69U6U9Q==}
+    dev: false
+
   /is-weakmap@2.0.2:
     resolution: {integrity: sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==}
     engines: {node: '>= 0.4'}
@@ -3898,7 +3968,6 @@ packages:
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-    dev: true
 
   /log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -4981,6 +5050,14 @@ packages:
       parse-ms: 2.1.0
     dev: true
 
+  /prisma@5.13.0:
+    resolution: {integrity: sha512-kGtcJaElNRAdAGsCNykFSZ7dBKpL14Cbs+VaQ8cECxQlRPDjBlMHNFYeYt0SKovAVy2Y65JXQwB3A5+zIQwnTg==}
+    engines: {node: '>=16.13'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@prisma/engines': 5.13.0
+
   /proc-log@3.0.0:
     resolution: {integrity: sha512-++Vn7NS4Xf9NacaU9Xq3URUuqZETPsf8L4j5/ckhaRYsfPeRyzGw+iDjFhV/Jr3uNmTvvddEJFWh5R1gRgUH8A==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -5221,6 +5298,17 @@ packages:
       mdast-util-to-hast: 12.3.0
       unified: 10.1.2
     dev: true
+
+  /remix-auth@3.6.0(@remix-run/react@2.9.1)(@remix-run/server-runtime@2.9.1):
+    resolution: {integrity: sha512-mxlzLYi+/GKQSaXIqIw15dxAT1wm+93REAeDIft2unrKDYnjaGhhpapyPhdbALln86wt9lNAk21znfRss3fG7Q==}
+    peerDependencies:
+      '@remix-run/react': ^1.0.0 || ^2.0.0
+      '@remix-run/server-runtime': ^1.0.0 || ^2.0.0
+    dependencies:
+      '@remix-run/react': 2.9.1(react-dom@18.3.1)(react@18.3.1)(typescript@5.4.5)
+      '@remix-run/server-runtime': 2.9.1(typescript@5.4.5)
+      uuid: 8.3.2
+    dev: false
 
   /require-like@0.1.2:
     resolution: {integrity: sha512-oyrU88skkMtDdauHDuKVrgR+zuItqr6/c//FXzvmxRGMexSDc6hNvJInGW3LL46n+8b50RykrvwSUIIQH2LQ5A==}
@@ -5624,6 +5712,13 @@ packages:
       ansi-regex: 6.0.1
     dev: true
 
+  /strip-bom@2.0.0:
+    resolution: {integrity: sha512-kwrX1y7czp1E69n2ajbG65mIo9dqvJ+8aBQXOGVxqwvNbsXdFM6Lq37dLAY3mknUwru8CfcCbfOLL/gMo+fi3g==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      is-utf8: 0.2.1
+    dev: false
+
   /strip-bom@3.0.0:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
     engines: {node: '>=4'}
@@ -5989,6 +6084,11 @@ packages:
   /utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+
+  /uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+    dev: false
 
   /uvu@0.5.6:
     resolution: {integrity: sha512-+g8ENReyr8YsOc6fv/NVJs2vFdHBnBNdfE49rshrTzDWOlUx4Gq7KOS2GD8eqhy2j+Ejq29+SbKH8yjkAqXqoA==}
