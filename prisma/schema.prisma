@@ -14,14 +14,39 @@ datasource db {
 }
 
 model User {
-  email     String    @unique
-  password  String
+  email    String @unique
+  password String
 }
 
-model Expense {
-  id          BigInt    @unique
-  date        DateTime
-  amount      Int
-  details     String
-  tags        String
+model Source {
+  id           Int           @id @default(autoincrement())
+  name         String
+  transactions Transaction[]
 }
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Transaction {
+  id       Int      @id @default(autoincrement())
+  date     DateTime
+  amount   Int
+  details  String
+  source   Source   @relation(fields: [sourceId], references: [id])
+  sourceId Int
+  tags     Tag[]
+  ignore   Boolean  @default(false)
+  remark   String
+}
+
+model TransactionTag {
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int
+  tag          Tag       @relation(fields: [tagId], references: [id])
+  tagId        Int
+
+  @@id([tagId, transactionId])
+}
+
