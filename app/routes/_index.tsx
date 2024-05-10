@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async () => {
-  const transactions = await prisma.Transaction.findMany();
+  const transactions = await prisma.transaction.findMany();
   console.log("transactions", transactions);
   return transactions;
 };

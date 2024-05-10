@@ -1,9 +1,8 @@
-import type { MetaFunction } from "@remix-run/node";
-import { prisma } from "../services/prisma.server";
-import { useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import { type ActionFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { useLoaderData, Form } from "@remix-run/react";
 import { useState } from "react";
-import { Form } from "@remix-run/react";
+
+import { prisma } from "../services/prisma.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -20,15 +19,15 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export const loader = async () => {
-  const sources = await prisma.Source.findMany();
+  const sources = await prisma.source.findMany();
   return sources;
-  return {};
 };
 
-export default function uploadCsv() {
+export default function PploadCsv() {
   const data = useLoaderData<typeof loader>();
   const [source, setSource] = useState("");
-  const [file, setFile] = useState(null);
+  const [, setFile] = useState<File | null>(null);
+
   return (
     <div className="container mx-auto p-4">
       <h4 className="">Upload CSV File here</h4>
@@ -68,7 +67,11 @@ export default function uploadCsv() {
           <input
             type="file"
             name="file"
-            onChange={(e) => setFile(e.target.files[0])}
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                setFile(e.target.files[0]);
+              }
+            }}
             className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
                             file:mr-4 file:py-2 file:px-4
                             file:border-0
