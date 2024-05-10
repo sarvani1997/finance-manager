@@ -1,23 +1,28 @@
 import fs from "fs/promises";
 import * as csv from "csv";
+import { PrismaClient } from '@prisma/client'
+import { DateTime } from 'luxon';
+
+const prisma = new PrismaClient()
 
 async function readAmazonCreditCard() {
   let data = await fs.readFile("./public/amazon.csv", "utf-8");
   data = data.replaceAll("\r", "");
   data = data
-    .split("\n")
-    .filter((line) => (line.match(/,/g) || []).length > 3)
-    .join("\n");
-
+  .split("\n")
+  .filter((line) => (line.match(/,/g) || []).length > 3)
+  .join("\n");
+  
   const records = await new Promise((resolve) => {
     csv.parse(data, {}, (err, output) => {
       resolve(output);
     });
   });
 
+
   const headers = records[0];
 
-  const transactions = records
+  let transactions = records
     .slice(1)
     .map((record) => {
       const transaction = {};
@@ -33,7 +38,22 @@ async function readAmazonCreditCard() {
         !transaction["Transaction Details"].includes("INFINITY PAYMENT")
     );
 
-  console.log(transactions);
+  transactions = transactions.map((t) => {
+    let formattedDate = DateTime.fromFormat(t.Date,'dd/MM/yyyy')
+
+    return {
+      date: formattedDate.toISO(),
+      amount: t["Amount(in Rs)"],
+      details: t["Transaction Details"],
+      sourceId: 1,
+
+    }
+  })
+
+  await prisma.Transaction.createMany({
+    data: transactions,
+    skipDuplicates: true, // Skip 'Bobo'
+  })
 }
 
 // readAmazonCreditCard();
@@ -54,7 +74,7 @@ async function readSbiStatement() {
 
   const headers = records[0];
 
-  const transactions = records.slice(1).map((record) => {
+  let transactions = records.slice(1).map((record) => {
     const transaction = {};
     record.forEach((value, index) => {
       transaction[headers[index]] = value;
@@ -62,7 +82,23 @@ async function readSbiStatement() {
     return transaction;
   });
 
-  console.log(transactions);
+
+  transactions = transactions.map((t) => {
+    let formattedDate = DateTime.fromFormat(t["Txn Date"],'d LLL yyyy')
+
+    return {
+      date: formattedDate.toISO(),
+      amount: t['        Debit'] === " " ? 0 : Number( t['        Debit'].replace(",","")),
+      details: t["Description"],
+      sourceId: 2,
+
+    }
+  })
+
+  await prisma.Transaction.createMany({
+    data: transactions,
+    skipDuplicates: true, // Skip 'Bobo'
+  })
 }
 
 // readSbiStatement();
@@ -83,7 +119,7 @@ async function readCoralCreditCard() {
 
   const headers = records[0];
 
-  const transactions = records
+  let transactions = records
     .slice(1)
     .map((record) => {
       const transaction = {};
@@ -99,7 +135,24 @@ async function readCoralCreditCard() {
         !transaction["Transaction Details"].includes("INFINITY PAYMENT")
     );
 
-  console.log(transactions);
+  
+  
+  transactions = transactions.map((t) => {
+    let formattedDate = DateTime.fromFormat(t["Date"],'dd/MM/yyyy')
+    
+    return {
+      date: formattedDate.toISO(),
+      amount: t["Amount(in Rs)"],
+      details: t["Transaction Details"],
+      sourceId: 3,
+      
+    }
+  })
+
+  await prisma.Transaction.createMany({
+    data: transactions,
+    skipDuplicates: true, // Skip 'Bobo'
+  })
 }
 
 // readCoralCreditCard();
@@ -120,21 +173,35 @@ async function readIciciStatement() {
 
   const headers = records[0];
 
-  const transactions = records.slice(1).map((record) => {
+  let transactions = records.slice(1).map((record) => {
     const transaction = {};
     record.forEach((value, index) => {
       if (headers[index].trim() === "") {
         return;
       }
 
-      value = headers[index].startsWith("Amount") ? Number(value) : value;
 
       transaction[headers[index]] = value;
     });
     return transaction;
   });
 
-  console.log(transactions);
+  transactions = transactions.map((t) => {
+    let formattedDate = DateTime.fromFormat(t["Transaction Date"],'dd/MM/yyyy')
+    
+    return {
+      date: formattedDate.toISO(),
+      amount: Number(t["Withdrawal Amount (INR )"]),
+      details: t["Transaction Remarks"],
+      sourceId: 4,
+      
+    }
+  })
+
+  await prisma.Transaction.createMany({
+    data: transactions,
+    skipDuplicates: true, // Skip 'Bobo'
+  })
 }
 
 readIciciStatement();
