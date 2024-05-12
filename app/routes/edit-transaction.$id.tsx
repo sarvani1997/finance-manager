@@ -26,16 +26,39 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const body = await request.formData();
   const remark = body.get("remark") as string | null;
 
+  for (let [key, value] of body.entries()) {
+    if (key.startsWith("tag_")) {
+      const tagId = Number(key.slice(4));
+      const checked = value === "on";
+      if (checked) {
+        await prisma.transactionTag.upsert({
+          where: {
+            tagId_transactionId: {
+              transactionId: Number(params.id),
+              tagId,
+            },
+          },
+          update: {},
+          create: { transactionId: Number(params.id), tagId },
+        });
+      } else {
+        await prisma.transactionTag.deleteMany({
+          where: { transactionId: Number(params.id), tagId },
+        });
+      }
+    }
+  }
+
   await prisma.transaction.update({
     where: { id: Number(params.id) },
     data: { remark: remark || "" },
   });
 
-  return redirect;
+  return redirect("/");
 };
 
 export default function EditTransaction() {
-  const [transaction] = useLoaderData<typeof loader>();
+  const [transaction, sources, tags] = useLoaderData<typeof loader>();
 
   if (transaction === null) {
     return <div>Transaction not found</div>;
@@ -109,6 +132,23 @@ export default function EditTransaction() {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
             defaultValue={transaction.remark || ""}
           />
+        </div>
+        <div className="my-2">
+          <p className="block mb-2 text-sm font-medium">Tags</p>
+        </div>
+        <div className="my-2 grid grid-cols-3 gap-4">
+          {tags.map((tag) => (
+            <label key={tag.id} className="block mb-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                name={`tag_${tag.id}`}
+                defaultChecked={transaction.transactionTags.some(
+                  (t) => t.tagId === tag.id
+                )}
+              />{" "}
+              {tag.name}
+            </label>
+          ))}
         </div>
         <button
           type="submit"
