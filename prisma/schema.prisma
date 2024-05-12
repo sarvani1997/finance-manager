@@ -25,24 +25,21 @@ model Source {
 }
 
 model Tag {
-  id             Int              @id @default(autoincrement())
-  name           String
-  Transaction    Transaction?     @relation(fields: [transactionId], references: [id])
-  transactionId  Int?
-  TransactionTag TransactionTag[]
+  id              Int              @id @default(autoincrement())
+  name            String
+  tansactionTags TransactionTag[]
 }
 
 model Transaction {
-  id             Int              @id @default(autoincrement())
-  date           DateTime
-  amount         Int
-  details        String
-  source         Source           @relation(fields: [sourceId], references: [id])
-  sourceId       Int
-  tags           Tag[]
-  ignore         Boolean?          @default(false)
-  remark         String?
-  TransactionTag TransactionTag[]
+  id              Int              @id @default(autoincrement())
+  date            DateTime
+  amount          Int
+  details         String
+  source          Source           @relation(fields: [sourceId], references: [id])
+  sourceId        Int
+  ignore          Boolean?         @default(false)
+  remark          String?
+  transactionTags TransactionTag[]
 }
 
 model TransactionTag {

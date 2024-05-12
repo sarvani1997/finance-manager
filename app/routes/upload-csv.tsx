@@ -1,21 +1,31 @@
-import { type ActionFunctionArgs, type MetaFunction } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type MetaFunction,
+  redirect,
+} from "@remix-run/node";
 import { useLoaderData, Form } from "@remix-run/react";
 import { useState } from "react";
 
 import { prisma } from "../services/prisma.server";
+import { insertTransactions } from "~/services/handleCsv.server";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
+  return [{ title: "Upload Statement" }];
 };
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
 
-  console.log("data", [...body.keys()]);
-  return {};
+  const source = body.get("source") as string | null;
+  const file = body.get("file") as Blob | null;
+
+  if (!source || !file) {
+    return new Response("Bad Request", { status: 400 });
+  }
+
+  insertTransactions(source, await file.text());
+
+  return redirect("/");
 }
 
 export const loader = async () => {
@@ -30,7 +40,7 @@ export default function PploadCsv() {
 
   return (
     <div className="container mx-auto p-4">
-      <h4 className="">Upload CSV File here</h4>
+      <h4 className="">Upload CSV File</h4>
       <Form
         className="max-w-sm md:max-w-full md:px-8 lg:px-0 mx-auto"
         encType="multipart/form-data"
@@ -56,7 +66,7 @@ export default function PploadCsv() {
             </option>
             {data.map((s) => {
               return (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.name}>
                   {s.name}
                 </option>
               );
@@ -67,18 +77,13 @@ export default function PploadCsv() {
           <input
             type="file"
             name="file"
+            accept=".csv"
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0) {
                 setFile(e.target.files[0]);
               }
             }}
-            className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                            file:mr-4 file:py-2 file:px-4
-                            file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-gray-200 file:text-gray-800
-                            hover:file:bg-gray-200
-    "
+            className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-gray-200 file:text-gray-800 hover:file:bg-gray-200 "
           />
         </div>
         <button
