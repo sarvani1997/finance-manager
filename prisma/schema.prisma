@@ -39,6 +39,6 @@ model Transaction {
   sourceId        Int
   ignore          Boolean?         @default(false)
   remark          String?
-  tag             Tag              @relation(fields: [tagId], references: [id])
-  tagId           Int
+  tag             Tag?              @relation(fields: [tagId], references: [id])
+  tagId           Int?
 }

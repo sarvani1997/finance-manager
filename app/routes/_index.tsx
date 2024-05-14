@@ -38,13 +38,10 @@ export default function Index() {
   }
 
   return (
-    <div>
-      <div
-        id="jobs"
-        className="relative overflow-x-auto shadow-md sm:rounded-lg lg:px-16 xl:px-32 py-8"
-      >
-        <table className="w-full text-base text-left   ">
-          <thead className="text-base shadow-sm text-gray-700 uppercase">
+    <div className="py-4">
+      <div className="relative overflow-x-auto">
+        <table className="w-full text-sm text-left rtl:text-right text-gray-500   ">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-3">
                 Date
@@ -69,20 +66,18 @@ export default function Index() {
           <tbody>
             {transactions.map((t) => {
               return (
-                <tr key={t.id} className="border-y-4 border-white shadow-sm">
+                <tr key={t.id} className="bg-white border-b ">
                   <td className="px-6 py-4">
-                    {DateTime.fromISO(t.date).toISODate()}
+                    {DateTime.fromISO(t.date)
+                      .toLocaleString(DateTime.DATETIME_MED)
+                      .slice(0, -7)}
                   </td>
                   <td className="px-6 py-4 ">
                     {sources.find((s) => t.sourceId === s.id)?.name}
                   </td>
-                  <td className="px-6 py-4">{t.amount}</td>
+                  <td className="px-6 py-4">Rs. {t.amount}/-</td>
                   <td className="px-6 py-4">{t.details}</td>
-                  <td className="px-6 py-4">
-                    {t.transactionTags.map(
-                      (tt) => tags.find((tag) => tag.id == tt.tagId)?.name
-                    )}
-                  </td>
+                  <td className="px-6 py-4"></td>
                   <td className="px-6 py-4">
                     <a href={`/edit-transaction/${t.id}`}>Edit</a>
                   </td>
