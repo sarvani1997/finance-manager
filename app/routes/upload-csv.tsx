@@ -39,8 +39,7 @@ export default function PploadCsv() {
   const [, setFile] = useState<File | null>(null);
 
   return (
-    <div className="container mx-auto p-4">
-      <h4 className="">Upload CSV File</h4>
+    <div className=" py-4">
       <Form
         className="max-w-sm md:max-w-full md:px-8 lg:px-0 mx-auto"
         encType="multipart/form-data"
