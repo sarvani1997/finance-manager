@@ -16,7 +16,6 @@ export const loader = async () => {
       ignore: false,
     },
     orderBy: { date: "desc" },
-    include: { transactionTags: true },
   });
   return [transactions, sources, tags] as const;
 };
@@ -24,13 +23,22 @@ export const loader = async () => {
 export default function Index() {
   const [transactions, sources, tags] = useLoaderData<typeof loader>();
 
+  if (transactions.length === 0) {
+    return (
+      <div className="">
+        <p className="text-center">
+          No Transactions to Display.{" "}
+          <a className="text-blue-600" href="/upload-csv">
+            Click here
+          </a>{" "}
+          to upload
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <div className="flex justify-end">
-        <a href="/upload-csv" className="m-4 text-blue-500">
-          Upload CSV
-        </a>
-      </div>
       <div
         id="jobs"
         className="relative overflow-x-auto shadow-md sm:rounded-lg lg:px-16 xl:px-32 py-8"
