@@ -7,6 +7,7 @@ import {
 import { useLoaderData, Form } from "@remix-run/react";
 
 import { prisma } from "../services/prisma.server";
+import { useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
@@ -17,7 +18,6 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const sources = await prisma.source.findMany();
   const transaction = await prisma.transaction.findUnique({
     where: { id: Number(params.id) },
-    include: { transactionTags: true },
   });
   return [transaction, sources, tags] as const;
 };
@@ -25,33 +25,17 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const body = await request.formData();
   const remark = body.get("remark") as string | null;
+  const tag = body.get("tag");
+  const ignore = body.get("ignore");
 
-  for (let [key, value] of body.entries()) {
-    if (key.startsWith("tag_")) {
-      const tagId = Number(key.slice(4));
-      const checked = value === "on";
-      if (checked) {
-        await prisma.transactionTag.upsert({
-          where: {
-            tagId_transactionId: {
-              transactionId: Number(params.id),
-              tagId,
-            },
-          },
-          update: {},
-          create: { transactionId: Number(params.id), tagId },
-        });
-      } else {
-        await prisma.transactionTag.deleteMany({
-          where: { transactionId: Number(params.id), tagId },
-        });
-      }
-    }
-  }
-
+  console.log("ignore", ignore);
   await prisma.transaction.update({
     where: { id: Number(params.id) },
-    data: { remark: remark || "" },
+    data: {
+      remark: remark || "",
+      tagId: Number(tag) || null,
+      ignore: ignore ? true : false,
+    },
   });
 
   return redirect("/");
@@ -59,14 +43,14 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function EditTransaction() {
   const [transaction, sources, tags] = useLoaderData<typeof loader>();
+  const [tag, setTag] = useState("");
 
   if (transaction === null) {
     return <div>Transaction not found</div>;
   }
-
+  console.log("transaction", transaction);
   return (
     <div className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl 2xl:prose-2xl container mx-auto p-4">
-      <h2 className="">Edit Transaction</h2>
       <Form
         className="max-w-sm md:max-w-full md:px-8 lg:px-0 mx-auto"
         encType="multipart/form-data"
@@ -120,6 +104,32 @@ export default function EditTransaction() {
         </div>
         <div className="my-2">
           <label
+            htmlFor="tag"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Tag
+          </label>
+          <select
+            id="tag"
+            name="tag"
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+            className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+          >
+            <option disabled value="">
+              Choose a Tag
+            </option>
+            {tags.map((s) => {
+              return (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <div className="my-2">
+          <label
             htmlFor="remark"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
@@ -129,27 +139,23 @@ export default function EditTransaction() {
             type="text"
             id="remark"
             name="remark"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+            className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
             defaultValue={transaction.remark || ""}
           />
         </div>
+
         <div className="my-2">
-          <p className="block mb-2 text-sm font-medium">Tags</p>
+          <label className="block mb-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              name="ignore"
+              id="ignore"
+              defaultChecked={transaction.ignore}
+            />{" "}
+            Ignore
+          </label>
         </div>
-        <div className="my-2 grid grid-cols-3 gap-4">
-          {tags.map((tag) => (
-            <label key={tag.id} className="block mb-2 text-sm font-medium">
-              <input
-                type="checkbox"
-                name={`tag_${tag.id}`}
-                defaultChecked={transaction.transactionTags.some(
-                  (t) => t.tagId === tag.id
-                )}
-              />{" "}
-              {tag.name}
-            </label>
-          ))}
-        </div>
+
         <button
           type="submit"
           className="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
