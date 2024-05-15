@@ -17,7 +17,7 @@ export const loader = async () => {
   return [transactions, sources, tags] as const;
 };
 
-function Filters({ source, setSource, tag, setTag, setIgnore }) {
+function Filters({ source, setSource, tag, setTag }) {
   const [transactions, sources, tags] = useLoaderData<typeof loader>();
 
   const [startDate, setStartDate] = useState(new Date());
@@ -143,7 +143,6 @@ export default function Index() {
             setSource={setSource}
             tag={tag}
             setTag={setTag}
-            setIgnore={setIgnore}
           />
         </div>
         <label className="inline-flex items-center cursor-pointer">
