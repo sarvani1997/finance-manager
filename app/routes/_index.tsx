@@ -1,9 +1,8 @@
 import type { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { DateTime } from "luxon";
-
 import { prisma } from "../services/prisma.server";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
@@ -18,11 +17,108 @@ export const loader = async () => {
   return [transactions, sources, tags] as const;
 };
 
+function Filters({ source, setSource, tag, setTag, setIgnore }) {
+  const [transactions, sources, tags] = useLoaderData<typeof loader>();
+
+  const [startDate, setStartDate] = useState(new Date());
+
+  const handleReset = () => {
+    setTag("");
+    setSource("");
+  };
+
+  return (
+    <div className="flex flex-row">
+      <div className="mx-2">
+        <select
+          id="source"
+          name="source"
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+        >
+          <option disabled value="">
+            Choose a source
+          </option>
+          {sources.map((s) => {
+            return (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      <div className="mx-2">
+        <select
+          id="tag"
+          name="tag"
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+        >
+          <option disabled value="">
+            Choose a tag
+          </option>
+          {tags.map((s) => {
+            return (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      <button
+        className="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 "
+        onClick={handleReset}
+      >
+        Reset
+      </button>
+    </div>
+  );
+}
+
 export default function Index() {
   const [transactions, sources, tags] = useLoaderData<typeof loader>();
   const [ignore, setIgnore] = useState(true);
-  const ignoredTransactions = transactions.filter((t) => !t.ignore);
-  const filteredTransactions = ignore ? ignoredTransactions : transactions;
+  const [source, setSource] = useState("");
+  const [tag, setTag] = useState("");
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+
+  useEffect(() => {
+    function get() {
+      if (ignore) {
+        let ignoredTransactions = transactions.filter((t) => !t.ignore);
+        if (source !== "") {
+          ignoredTransactions = ignoredTransactions.filter(
+            (t) => t.sourceId === Number(source)
+          );
+        }
+        if (tag !== "") {
+          ignoredTransactions = ignoredTransactions.filter(
+            (t) => t.tagId === Number(tag)
+          );
+        }
+        setFilteredTransactions(ignoredTransactions);
+      } else {
+        let unignoredTransactions = transactions;
+        if (source !== "") {
+          unignoredTransactions = unignoredTransactions.filter(
+            (t) => t.sourceId === Number(source)
+          );
+        }
+        if (tag !== "") {
+          unignoredTransactions = unignoredTransactions.filter(
+            (t) => t.tagId === Number(tag)
+          );
+        }
+        setFilteredTransactions(unignoredTransactions);
+      }
+    }
+    get();
+  }, [tag, ignore, source]);
+  console.log("sasa", tag, source);
 
   if (transactions.length === 0) {
     return (
@@ -37,9 +133,19 @@ export default function Index() {
       </div>
     );
   }
+
   return (
     <div className="py-4">
-      <div>
+      <div className="flex justify-between ">
+        <div>
+          <Filters
+            source={source}
+            setSource={setSource}
+            tag={tag}
+            setTag={setTag}
+            setIgnore={setIgnore}
+          />
+        </div>
         <label className="inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
