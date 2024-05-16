@@ -85,7 +85,7 @@ export async function readSbiStatement(data: string) {
       date: formattedDate.toISO(),
       amount:
         t["        Debit"] === " "
-          ? 0
+          ? -Number(t["Credit"].replace(",", ""))
           : Number(t["        Debit"].replace(",", "")),
       details: t["Description"],
       sourceId: 2,
@@ -185,7 +185,7 @@ export async function readIciciStatement(data: string) {
 
     return {
       date: formattedDate.toISO(),
-      amount: Number(t["Withdrawal Amount (INR )"]),
+      amount: Number(t["Withdrawal Amount (INR )"]) === 0 ? -Number(t["Deposit Amount (INR )"]) :  Number(t["Withdrawal Amount (INR )"]) ,
       details: t["Transaction Remarks"],
       sourceId: 4,
     };
