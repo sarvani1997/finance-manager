@@ -77,23 +77,22 @@ export async function readSbiStatement(data: string) {
     });
     return transaction;
   });
-
-  transactions = transactions.map((t) => {
+  let inserts = transactions.map((t) => {
     const formattedDate = DateTime.fromFormat(t["Txn Date"], "d LLL yyyy");
-
+   
+    const amount = t["        Debit"] === " " ? -Number(t["Credit"].trim().replaceAll(",", "")) : Number(t["        Debit"].trim().replaceAll(",", ""))
     return {
       date: formattedDate.toISO(),
-      amount:
-        t["        Debit"] === " "
-          ? -Number(t["Credit"].replace(",", ""))
-          : Number(t["        Debit"].replace(",", "")),
+      amount: amount,
       details: t["Description"],
       sourceId: 2,
     };
   });
 
+
+
   await prisma.transaction.createMany({
-    data: transactions,
+    data: inserts,
     skipDuplicates: true, // Skip 'Bobo'
   });
 }
