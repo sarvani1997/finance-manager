@@ -3,7 +3,7 @@ import {
   type MetaFunction,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData, Form } from "@remix-run/react";
+import { useLoaderData, Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 
 import { prisma } from "../services/prisma.server";
@@ -23,7 +23,14 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response("Bad Request", { status: 400 });
   }
 
-  insertTransactions(source, await file.text());
+  let msg = await insertTransactions(source, await file.text());
+  console.log("msg", msg);
+
+  if (msg === "error") {
+    return "1";
+  } else if (msg.count === 0) {
+    return "0";
+  }
 
   return redirect("/");
 }
@@ -34,12 +41,32 @@ export const loader = async () => {
 };
 
 export default function PploadCsv() {
+  const d = useActionData<typeof action>();
+  console.log(d, "data");
   const data = useLoaderData<typeof loader>();
   const [source, setSource] = useState("");
   const [, setFile] = useState<File | null>(null);
 
   return (
     <div className=" py-4">
+      {d === "0" && (
+        <div
+          className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+          role="alert"
+        >
+          <span className="font-medium">Alert!</span> This Statement is already
+          uploaded
+        </div>
+      )}
+      {d === "1" && (
+        <div
+          className="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+          role="alert"
+        >
+          <span className="font-medium">Alert!</span> Please check the format of
+          the file
+        </div>
+      )}
       <Form
         className="max-w-sm md:max-w-full md:px-8 lg:px-0 mx-auto"
         encType="multipart/form-data"
