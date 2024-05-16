@@ -41,4 +41,7 @@ model Transaction {
   remark          String?
   tag             Tag?              @relation(fields: [tagId], references: [id])
   tagId           Int?
+
+
+  @@unique([date, amount, details])
 }
