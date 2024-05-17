@@ -17,18 +17,78 @@ export const loader = async () => {
   return [transactions, sources, tags] as const;
 };
 
-function Filters({ source, setSource, tag, setTag }) {
+function Filters({
+  source,
+  setSource,
+  tag,
+  setTag,
+  month,
+  setMonth,
+  year,
+  setYear,
+}) {
   const [transactions, sources, tags] = useLoaderData<typeof loader>();
 
-  const [startDate, setStartDate] = useState(new Date());
+  const months = [
+    { name: "Jan", id: "01" },
+    { name: "Feb", id: "02" },
+    { name: "Mar", id: "03" },
+    { name: "Apr", id: "04" },
+    { name: "May", id: "05" },
+    { name: "Jun", id: "06" },
+    { name: "Jul", id: "07" },
+    { name: "Aug", id: "08" },
+    { name: "Sep", id: "09" },
+    { name: "Oct", id: "10" },
+    { name: "Nov", id: "11" },
+    { name: "Dec", id: "12" },
+  ];
+
+  const years = ["2021", "2022", "2023", "2024"];
 
   const handleReset = () => {
     setTag("");
     setSource("");
+    setMonth(DateTime.now().toFormat("MM"));
+    setYear(DateTime.now().toFormat("yyyy"));
   };
 
   return (
     <div className="flex flex-row">
+      <div className="mx-2">
+        <select
+          id="month"
+          name="month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+        >
+          {months.map((s) => {
+            return (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      <div className="mx-2">
+        <select
+          id="year"
+          name="year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+        >
+          {years.map((s) => {
+            return (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            );
+          })}
+        </select>
+      </div>
       <div className="mx-2">
         <select
           id="source"
@@ -37,9 +97,7 @@ function Filters({ source, setSource, tag, setTag }) {
           onChange={(e) => setSource(e.target.value)}
           className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
         >
-          <option disabled value="">
-            Choose a source
-          </option>
+          <option value="">All</option>
           {sources.map((s) => {
             return (
               <option key={s.id} value={s.id}>
@@ -57,9 +115,7 @@ function Filters({ source, setSource, tag, setTag }) {
           onChange={(e) => setTag(e.target.value)}
           className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
         >
-          <option disabled value="">
-            Choose a tag
-          </option>
+          <option value="">All</option>
           {tags.map((s) => {
             return (
               <option key={s.id} value={s.id}>
@@ -84,6 +140,8 @@ export default function Index() {
   const [ignore, setIgnore] = useState(true);
   const [source, setSource] = useState("");
   const [tag, setTag] = useState("");
+  const [month, setMonth] = useState(DateTime.now().toFormat("MM"));
+  const [year, setYear] = useState(DateTime.now().toFormat("yyyy"));
   const [filteredTransactions, setFilteredTransactions] = useState([]);
 
   useEffect(() => {
@@ -100,6 +158,14 @@ export default function Index() {
             (t) => t.tagId === Number(tag)
           );
         }
+        if (month !== "" || year !== "") {
+          ignoredTransactions = ignoredTransactions.filter((t) => {
+            return DateTime.fromFormat(
+              "01/" + month + "/" + year,
+              "dd/MM/yyyy"
+            ).hasSame(DateTime.fromISO(t.date), "month");
+          });
+        }
         setFilteredTransactions(ignoredTransactions);
       } else {
         let unignoredTransactions = transactions;
@@ -113,11 +179,19 @@ export default function Index() {
             (t) => t.tagId === Number(tag)
           );
         }
+        if (month !== "" || year !== "") {
+          unignoredTransactions = unignoredTransactions.filter((t) => {
+            return DateTime.fromFormat(
+              "01/" + month + "/" + year,
+              "dd/MM/yyyy"
+            ).hasSame(DateTime.fromISO(t.date), "month");
+          });
+        }
         setFilteredTransactions(unignoredTransactions);
       }
     }
     get();
-  }, [tag, ignore, source]);
+  }, [tag, ignore, source, month, year]);
   console.log("sasa", tag, source);
 
   if (transactions.length === 0) {
@@ -143,6 +217,10 @@ export default function Index() {
             setSource={setSource}
             tag={tag}
             setTag={setTag}
+            month={month}
+            year={year}
+            setMonth={setMonth}
+            setYear={setYear}
           />
         </div>
         <label className="inline-flex items-center cursor-pointer">
