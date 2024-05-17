@@ -218,7 +218,7 @@ export default function Index() {
   }
   return (
     <div className="py-4">
-      <div className="flex justify-between ">
+      <div className="flex justify-between items-center">
         <div>
           <Filters
             source={source}
@@ -255,13 +255,13 @@ export default function Index() {
                 Date
               </th>
               <th scope="col" className="px-6 py-3">
+                Details
+              </th>
+              <th scope="col" className="px-6 py-3">
                 Source
               </th>
               <th scope="col" className="px-6 py-3">
                 Amount
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Details
               </th>
               <th scope="col" className="px-6 py-3">
                 Tag
@@ -280,10 +280,6 @@ export default function Index() {
                       .toLocaleString(DateTime.DATETIME_MED)
                       .slice(0, -7)}
                   </td>
-                  <td className="px-6 py-4 ">
-                    {sources.find((s) => t.sourceId === s.id)?.name}
-                  </td>
-                  <td className="px-6 py-4">Rs. {t.amount}/-</td>
                   <td className="px-6 py-4">
                     {t.details}
                     {t.ignore && (
@@ -292,8 +288,12 @@ export default function Index() {
                       </span>
                     )}
                   </td>
+                  <td className="px-6 py-4 ">
+                    {sources.find((s) => t.sourceId === s.id)?.name}
+                  </td>
+                  <td className="px-6 py-4">Rs. {t.amount}/-</td>
                   <td className="px-6 py-4">
-                    {tags.find((s) => t.tagId === s.id)?.name}
+                    {t.tagId ? tags.find((s) => t.tagId === s.id)?.name : "-"}
                   </td>
                   <td className="px-6 py-4">
                     <a href={`/edit-transaction/${t.id}`}>Edit</a>
