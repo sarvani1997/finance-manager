@@ -143,6 +143,7 @@ export default function Index() {
   const [month, setMonth] = useState(DateTime.now().toFormat("MM"));
   const [year, setYear] = useState(DateTime.now().toFormat("yyyy"));
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     function get() {
@@ -192,7 +193,15 @@ export default function Index() {
     }
     get();
   }, [tag, ignore, source, month, year]);
-  console.log("sasa", tag, source);
+
+  useEffect(() => {
+    let amountArr = filteredTransactions.map((t) => t.amount);
+    let sum = 0;
+    for (let i = 0; i < amountArr.length; i++) {
+      sum += amountArr[i];
+    }
+    setTotal(sum);
+  }, [filteredTransactions]);
 
   if (transactions.length === 0) {
     return (
@@ -207,7 +216,6 @@ export default function Index() {
       </div>
     );
   }
-
   return (
     <div className="py-4">
       <div className="flex justify-between ">
@@ -222,6 +230,9 @@ export default function Index() {
             setMonth={setMonth}
             setYear={setYear}
           />
+        </div>
+        <div className="font-bold text-red-500 text-xl">
+          Total: Rs. {total}/-
         </div>
         <label className="inline-flex items-center cursor-pointer">
           <input
