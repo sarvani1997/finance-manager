@@ -17,8 +17,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const body = await request.formData();
   const id = body.get("id");
   const tag = body.get("tag");
-  console.log("tag", tag);
-  console.log("id", id);
 
   await prisma.transaction.update({
     where: { id: Number(id) },

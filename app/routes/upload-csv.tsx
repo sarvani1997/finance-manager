@@ -24,7 +24,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   let msg = await insertTransactions(source, await file.text());
-  console.log("msg", msg);
 
   if (msg === "error") {
     return "1";
@@ -42,7 +41,6 @@ export const loader = async () => {
 
 export default function PploadCsv() {
   const d = useActionData<typeof action>();
-  console.log(d, "data");
   const data = useLoaderData<typeof loader>();
   const [source, setSource] = useState("");
   const [, setFile] = useState<File | null>(null);

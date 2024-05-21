@@ -28,7 +28,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const tag = body.get("tag");
   const ignore = body.get("ignore");
 
-  console.log("ignore", ignore);
   await prisma.transaction.update({
     where: { id: Number(params.id) },
     data: {
@@ -49,7 +48,6 @@ export default function EditTransaction() {
   if (transaction === null) {
     return <div>Transaction not found</div>;
   }
-  console.log("transaction", transaction);
   return (
     <div className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl 2xl:prose-2xl container mx-auto p-4">
       <Form
