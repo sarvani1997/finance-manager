@@ -38,7 +38,7 @@ export const loader = async () => {
   return [transactions, sources, tags] as const;
 };
 
-function TableBody({ sources, tags, editMode, t }) {
+function TableBody({ sources, tags, t }) {
   const [editTag, setEditTag] = useState(t.tagId || "0");
 
   const submit = useSubmit();
@@ -62,35 +62,27 @@ function TableBody({ sources, tags, editMode, t }) {
       </td>
       <td className="px-6 py-4">Rs. {t.amount}/-</td>
       <td className="px-6 py-4">
-        {!editMode ? (
-          t.tagId ? (
-            tags.find((s) => t.tagId === s.id)?.name
-          ) : (
-            "-"
-          )
-        ) : (
-          <Form onChange={(e) => submit(e.currentTarget, { method: "POST" })}>
-            <input id="id" name="id" type="hidden" value={t.id} />
-            <select
-              id="tag"
-              name="tag"
-              value={editTag}
-              onChange={(e) => setEditTag(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-            >
-              <option disabled value="0">
-                Choose a Tag
-              </option>
-              {tags.map((s) => {
-                return (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                );
-              })}
-            </select>
-          </Form>
-        )}
+        <Form onChange={(e) => submit(e.currentTarget, { method: "POST" })}>
+          <input id="id" name="id" type="hidden" value={t.id} />
+          <select
+            id="tag"
+            name="tag"
+            value={editTag}
+            onChange={(e) => setEditTag(e.target.value)}
+            // className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+          >
+            <option disabled value="0">
+              Choose a Tag
+            </option>
+            {tags.map((s) => {
+              return (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              );
+            })}
+          </select>
+        </Form>
       </td>
       <td className="px-6 py-4">
         <a href={`/edit-transaction/${t.id}`}>Edit</a>
@@ -270,7 +262,6 @@ export default function Index() {
   const [ignore, setIgnore] = useState(true);
   const [source, setSource] = useState("");
   const [tag, setTag] = useState("");
-  const [editMode, setEditMode] = useState(false);
   const [month, setMonth] = useState(DateTime.now().toFormat("MM"));
   const [year, setYear] = useState(DateTime.now().toFormat("yyyy"));
 
@@ -354,16 +345,7 @@ export default function Index() {
                 Amount
               </th>
               <th scope="col" className="px-6 py-3">
-                {"Tag" + "  "}
-                <span>
-                  <button
-                    className="text-blue-500"
-                    type="button"
-                    onClick={() => setEditMode(!editMode)}
-                  >
-                    {!editMode ? "Edit" : "X"}
-                  </button>
-                </span>
+                Tag
               </th>
               <th scope="col" className="px-6 py-3">
                 Actions
@@ -373,13 +355,7 @@ export default function Index() {
           <tbody>
             {filteredTransactions.map((t) => {
               return (
-                <TableBody
-                  key={t.id}
-                  t={t}
-                  sources={sources}
-                  tags={tags}
-                  editMode={editMode}
-                />
+                <TableBody key={t.id} t={t} sources={sources} tags={tags} />
               );
             })}
           </tbody>
