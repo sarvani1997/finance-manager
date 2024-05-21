@@ -1,11 +1,32 @@
-import type { MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import {
+  type MetaFunction,
+  type ActionFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { useLoaderData, Form } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { prisma } from "../services/prisma.server";
 import { useEffect, useState } from "react";
+import { useSubmit } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
+};
+
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const body = await request.formData();
+  const id = body.get("id");
+  const tag = body.get("tag");
+  console.log("tag", tag);
+  console.log("id", id);
+
+  await prisma.transaction.update({
+    where: { id: Number(id) },
+    data: {
+      tagId: Number(tag) || null,
+    },
+  });
+  return redirect("/");
 };
 
 export const loader = async () => {
@@ -16,6 +37,67 @@ export const loader = async () => {
   });
   return [transactions, sources, tags] as const;
 };
+
+function TableBody({ sources, tags, editMode, t }) {
+  const [editTag, setEditTag] = useState(t.tagId || "0");
+
+  const submit = useSubmit();
+  return (
+    <tr key={t.id} className="bg-white border-b ">
+      <td className="px-6 py-4">
+        {DateTime.fromISO(t.date)
+          .toLocaleString(DateTime.DATETIME_MED)
+          .slice(0, -7)}
+      </td>
+      <td className="px-6 py-4">
+        {t.details}
+        {t.ignore && (
+          <span className="m-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+            Ignored
+          </span>
+        )}
+      </td>
+      <td className="px-6 py-4 ">
+        {sources.find((s) => t.sourceId === s.id)?.name}
+      </td>
+      <td className="px-6 py-4">Rs. {t.amount}/-</td>
+      <td className="px-6 py-4">
+        {!editMode ? (
+          t.tagId ? (
+            tags.find((s) => t.tagId === s.id)?.name
+          ) : (
+            "-"
+          )
+        ) : (
+          <Form onChange={(e) => submit(e.currentTarget, { method: "POST" })}>
+            <input id="id" name="id" type="hidden" value={t.id} />
+            <select
+              id="tag"
+              name="tag"
+              value={editTag}
+              onChange={(e) => setEditTag(e.target.value)}
+              className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+            >
+              <option disabled value="0">
+                Choose a Tag
+              </option>
+              {tags.map((s) => {
+                return (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                );
+              })}
+            </select>
+          </Form>
+        )}
+      </td>
+      <td className="px-6 py-4">
+        <a href={`/edit-transaction/${t.id}`}>Edit</a>
+      </td>
+    </tr>
+  );
+}
 
 function Filters({
   source,
@@ -135,64 +217,72 @@ function Filters({
   );
 }
 
+function filterTransactions(
+  transactions,
+  { ignore, source, tag, month, year }
+) {
+  if (ignore) {
+    let ignoredTransactions = transactions.filter((t) => !t.ignore);
+    if (source !== "") {
+      ignoredTransactions = ignoredTransactions.filter(
+        (t) => t.sourceId === Number(source)
+      );
+    }
+    if (tag !== "") {
+      ignoredTransactions = ignoredTransactions.filter(
+        (t) => t.tagId === Number(tag)
+      );
+    }
+    if (month !== "" || year !== "") {
+      ignoredTransactions = ignoredTransactions.filter((t) => {
+        return DateTime.fromFormat(
+          "01/" + month + "/" + year,
+          "dd/MM/yyyy"
+        ).hasSame(DateTime.fromISO(t.date), "month");
+      });
+    }
+    return ignoredTransactions;
+  }
+  let unignoredTransactions = transactions;
+  if (source !== "") {
+    unignoredTransactions = unignoredTransactions.filter(
+      (t) => t.sourceId === Number(source)
+    );
+  }
+  if (tag !== "") {
+    unignoredTransactions = unignoredTransactions.filter(
+      (t) => t.tagId === Number(tag)
+    );
+  }
+  if (month !== "" || year !== "") {
+    unignoredTransactions = unignoredTransactions.filter((t) => {
+      return DateTime.fromFormat(
+        "01/" + month + "/" + year,
+        "dd/MM/yyyy"
+      ).hasSame(DateTime.fromISO(t.date), "month");
+    });
+  }
+  return unignoredTransactions;
+}
+
 export default function Index() {
   const [transactions, sources, tags] = useLoaderData<typeof loader>();
   const [ignore, setIgnore] = useState(true);
   const [source, setSource] = useState("");
   const [tag, setTag] = useState("");
+  const [editMode, setEditMode] = useState(false);
   const [month, setMonth] = useState(DateTime.now().toFormat("MM"));
   const [year, setYear] = useState(DateTime.now().toFormat("yyyy"));
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
+
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    function get() {
-      if (ignore) {
-        let ignoredTransactions = transactions.filter((t) => !t.ignore);
-        if (source !== "") {
-          ignoredTransactions = ignoredTransactions.filter(
-            (t) => t.sourceId === Number(source)
-          );
-        }
-        if (tag !== "") {
-          ignoredTransactions = ignoredTransactions.filter(
-            (t) => t.tagId === Number(tag)
-          );
-        }
-        if (month !== "" || year !== "") {
-          ignoredTransactions = ignoredTransactions.filter((t) => {
-            return DateTime.fromFormat(
-              "01/" + month + "/" + year,
-              "dd/MM/yyyy"
-            ).hasSame(DateTime.fromISO(t.date), "month");
-          });
-        }
-        setFilteredTransactions(ignoredTransactions);
-      } else {
-        let unignoredTransactions = transactions;
-        if (source !== "") {
-          unignoredTransactions = unignoredTransactions.filter(
-            (t) => t.sourceId === Number(source)
-          );
-        }
-        if (tag !== "") {
-          unignoredTransactions = unignoredTransactions.filter(
-            (t) => t.tagId === Number(tag)
-          );
-        }
-        if (month !== "" || year !== "") {
-          unignoredTransactions = unignoredTransactions.filter((t) => {
-            return DateTime.fromFormat(
-              "01/" + month + "/" + year,
-              "dd/MM/yyyy"
-            ).hasSame(DateTime.fromISO(t.date), "month");
-          });
-        }
-        setFilteredTransactions(unignoredTransactions);
-      }
-    }
-    get();
-  }, [tag, ignore, source, month, year]);
+  const filteredTransactions = filterTransactions(transactions, {
+    ignore,
+    source,
+    tag,
+    month,
+    year,
+  });
 
   useEffect(() => {
     let amountArr = filteredTransactions.map((t) => t.amount);
@@ -264,7 +354,16 @@ export default function Index() {
                 Amount
               </th>
               <th scope="col" className="px-6 py-3">
-                Tag
+                {"Tag" + "  "}
+                <span>
+                  <button
+                    className="text-blue-500"
+                    type="button"
+                    onClick={() => setEditMode(!editMode)}
+                  >
+                    {!editMode ? "Edit" : "X"}
+                  </button>
+                </span>
               </th>
               <th scope="col" className="px-6 py-3">
                 Actions
@@ -274,31 +373,13 @@ export default function Index() {
           <tbody>
             {filteredTransactions.map((t) => {
               return (
-                <tr key={t.id} className="bg-white border-b ">
-                  <td className="px-6 py-4">
-                    {DateTime.fromISO(t.date)
-                      .toLocaleString(DateTime.DATETIME_MED)
-                      .slice(0, -7)}
-                  </td>
-                  <td className="px-6 py-4">
-                    {t.details}
-                    {t.ignore && (
-                      <span className="m-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                        Ignored
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 ">
-                    {sources.find((s) => t.sourceId === s.id)?.name}
-                  </td>
-                  <td className="px-6 py-4">Rs. {t.amount}/-</td>
-                  <td className="px-6 py-4">
-                    {t.tagId ? tags.find((s) => t.tagId === s.id)?.name : "-"}
-                  </td>
-                  <td className="px-6 py-4">
-                    <a href={`/edit-transaction/${t.id}`}>Edit</a>
-                  </td>
-                </tr>
+                <TableBody
+                  key={t.id}
+                  t={t}
+                  sources={sources}
+                  tags={tags}
+                  editMode={editMode}
+                />
               );
             })}
           </tbody>

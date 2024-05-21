@@ -44,6 +44,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 export default function EditTransaction() {
   const [transaction, sources, tags] = useLoaderData<typeof loader>();
   const [tag, setTag] = useState("");
+  ``;
 
   if (transaction === null) {
     return <div>Transaction not found</div>;
