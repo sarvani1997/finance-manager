@@ -33,7 +33,7 @@ export const loader = async () => {
   const tags = await prisma.tag.findMany();
   const sources = await prisma.source.findMany();
   const transactions = await prisma.transaction.findMany({
-    orderBy: { date: "desc" },
+    orderBy: [{ date: "desc" }, { id: "desc" }],
   });
   return [transactions, sources, tags] as const;
 };
