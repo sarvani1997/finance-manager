@@ -50,7 +50,7 @@ function TableBody({ sources, tags, editMode, t }) {
           .slice(0, -7)}
       </td>
       <td className="px-6 py-4">
-        {t.details}
+        {t.remark ? t.remark + " (remark)" : t.details}
         {t.ignore && (
           <span className="m-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
             Ignored
