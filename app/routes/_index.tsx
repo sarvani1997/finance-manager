@@ -3,17 +3,18 @@ import {
   type ActionFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData, Form } from "@remix-run/react";
+import { useSubmit, useLoaderData, Form } from "@remix-run/react";
 import { DateTime } from "luxon";
-import { prisma } from "../services/prisma.server";
 import { useEffect, useState } from "react";
-import { useSubmit } from "@remix-run/react";
+import { Source, Tag, Transaction } from "@prisma/client";
+
+import { prisma } from "../services/prisma.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
 };
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.formData();
   const id = body.get("id");
   const tag = body.get("tag");
@@ -36,32 +37,42 @@ export const loader = async () => {
   return [transactions, sources, tags] as const;
 };
 
-function TableBody({ sources, tags, t }) {
-  const [editTag, setEditTag] = useState(t.tagId || "0");
+function TableBody({
+  sources,
+  tags,
+  transaction,
+}: {
+  sources: Source[];
+  tags: Tag[];
+  transaction: Transaction;
+}) {
+  const [editTag, setEditTag] = useState(transaction.tagId || "0");
 
   const submit = useSubmit();
   return (
-    <tr key={t.id} className="bg-white border-b ">
+    <tr key={transaction.id} className="bg-white border-b ">
       <td className="px-6 py-4">
-        {DateTime.fromISO(t.date)
+        {DateTime.fromJSDate(transaction.date)
           .toLocaleString(DateTime.DATETIME_MED)
           .slice(0, -7)}
       </td>
       <td className="px-6 py-4">
-        {t.remark ? t.remark + " (remark)" : t.details}
-        {t.ignore && (
+        {transaction.remark
+          ? transaction.remark + " (remark)"
+          : transaction.details}
+        {transaction.ignore && (
           <span className="m-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
             Ignored
           </span>
         )}
       </td>
       <td className="px-6 py-4 ">
-        {sources.find((s) => t.sourceId === s.id)?.name}
+        {sources.find((s) => transaction.sourceId === s.id)?.name}
       </td>
-      <td className="px-6 py-4">Rs. {t.amount}/-</td>
+      <td className="px-6 py-4">Rs. {transaction.amount}/-</td>
       <td className="px-6 py-4">
         <Form onChange={(e) => submit(e.currentTarget, { method: "POST" })}>
-          <input id="id" name="id" type="hidden" value={t.id} />
+          <input id="id" name="id" type="hidden" value={transaction.id} />
           <select
             id="tag"
             name="tag"
@@ -83,7 +94,7 @@ function TableBody({ sources, tags, t }) {
         </Form>
       </td>
       <td className="px-6 py-4">
-        <a href={`/edit-transaction/${t.id}`}>Edit</a>
+        <a href={`/edit-transaction/${transaction.id}`}>Edit</a>
       </td>
     </tr>
   );
@@ -208,7 +219,7 @@ function Filters({
 }
 
 function filterTransactions(
-  transactions,
+  transactions: Transaction[],
   { ignore, source, tag, month, year }
 ) {
   if (ignore) {
@@ -351,9 +362,14 @@ export default function Index() {
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map((t) => {
+            {filteredTransactions.map((transaction) => {
               return (
-                <TableBody key={t.id} t={t} sources={sources} tags={tags} />
+                <TableBody
+                  key={transaction.id}
+                  transaction={transaction}
+                  sources={sources}
+                  tags={tags}
+                />
               );
             })}
           </tbody>

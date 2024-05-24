@@ -14,8 +14,17 @@ datasource db {
 }
 
 model User {
-  email    String @unique
+  id       String    @id @default(cuid())
+  email    String    @unique
   password String
+  Session  Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
 }
 
 model Source {
@@ -25,23 +34,22 @@ model Source {
 }
 
 model Tag {
-  id              Int              @id @default(autoincrement())
-  name            String
-  transactions    Transaction[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  transactions Transaction[]
 }
 
 model Transaction {
-  id              Int              @id @default(autoincrement())
-  date            DateTime
-  amount          Int
-  details         String
-  source          Source           @relation(fields: [sourceId], references: [id])
-  sourceId        Int
-  ignore          Boolean?         @default(false)
-  remark          String?
-  tag             Tag?              @relation(fields: [tagId], references: [id])
-  tagId           Int?
-
+  id       Int      @id @default(autoincrement())
+  date     DateTime
+  amount   Int
+  details  String
+  source   Source   @relation(fields: [sourceId], references: [id])
+  sourceId Int
+  ignore   Boolean? @default(false)
+  remark   String?
+  tag      Tag?     @relation(fields: [tagId], references: [id])
+  tagId    Int?
 
   @@unique([date, amount, details])
 }
