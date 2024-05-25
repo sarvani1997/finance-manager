@@ -11,6 +11,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@lucia-auth/adapter-prisma": "^4.0.1",
     "@prisma/client": "5.14.0",
     "@remix-run/node": "^2.9.1",
     "@remix-run/react": "^2.9.1",
@@ -18,7 +19,9 @@
     "@types/luxon": "^3.4.2",
     "csv": "^6.3.8",
     "isbot": "^4.1.0",
+    "lucia": "^3.2.0",
     "luxon": "^3.4.4",
+    "oslo": "^1.2.0",
     "prisma": "5.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -50,4 +53,3 @@
     "node": ">=18.0.0"
   }
 }
-

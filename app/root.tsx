@@ -14,7 +14,7 @@ function Nav() {
     <nav className="bg-gray-600 border-gray-200 ">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <img src="/public/icon.png" className="h-8" alt="Logo" />
+          <img src="/icon.png" className="h-8" alt="Logo" />
           <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
             Finance Manager
           </span>

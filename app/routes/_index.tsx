@@ -2,13 +2,16 @@ import {
   type MetaFunction,
   type ActionFunctionArgs,
   redirect,
+  LoaderFunctionArgs,
+  json,
 } from "@remix-run/node";
 import { useSubmit, useLoaderData, Form } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Source, Tag, Transaction } from "@prisma/client";
 
-import { prisma } from "../services/prisma.server";
+import { prisma } from "~/services/prisma.server";
+import { validateSession } from "~/services/auth.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
@@ -28,13 +31,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return redirect("/");
 };
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { user, session, cookie } = await validateSession(request);
+
+  // if (!session || !user) {
+  //   throw redirect("/login", {
+  //     headers: cookie ? { "Set-Cookie": cookie } : {},
+  //   });
+  // }
+
   const tags = await prisma.tag.findMany();
   const sources = await prisma.source.findMany();
   const transactions = await prisma.transaction.findMany({
     orderBy: [{ date: "desc" }, { id: "desc" }],
   });
-  return [transactions, sources, tags] as const;
+  return json([transactions, sources, tags], {
+    headers: cookie ? { "Set-Cookie": cookie } : {},
+  });
 };
 
 function TableBody({

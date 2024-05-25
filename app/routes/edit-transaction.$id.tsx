@@ -149,7 +149,7 @@ export default function EditTransaction() {
               type="checkbox"
               name="ignore"
               id="ignore"
-              defaultChecked={transaction.ignore}
+              defaultChecked={transaction.ignore || false}
             />{" "}
             Ignore
           </label>
