@@ -11,6 +11,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@epic-web/cachified": "^5.2.0",
     "@lucia-auth/adapter-prisma": "^4.0.1",
     "@prisma/client": "5.14.0",
     "@remix-run/node": "^2.9.2",
@@ -19,6 +20,7 @@
     "@types/luxon": "^3.4.2",
     "csv": "^6.3.9",
     "isbot": "^4.1.0",
+    "lru-cache": "^10.2.2",
     "lucia": "^3.2.0",
     "luxon": "^3.4.4",
     "oslo": "^1.2.0",

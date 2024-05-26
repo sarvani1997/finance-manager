@@ -2,12 +2,14 @@ import {
   type ActionFunctionArgs,
   type MetaFunction,
   redirect,
+  LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useLoaderData, Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 
 import { prisma } from "~/.server/prisma";
 import { insertTransactions } from "~/.server/handleCsv";
+import { assertSignedIn } from "~/.server/auth";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Upload Statement" }];
@@ -34,7 +36,8 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect("/");
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  await assertSignedIn(request);
   const sources = await prisma.source.findMany();
   return sources;
 };

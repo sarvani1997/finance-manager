@@ -1,14 +1,27 @@
-import { redirect, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  redirect,
+  type LoaderFunctionArgs,
+  type ActionFunctionArgs,
+} from "@remix-run/node";
 import { Form } from "@remix-run/react";
+import { validateLogin, validateSession } from "~/.server/auth";
 
-import { loginAction } from "~/.server/auth";
-
-export const loader = async ({ context }: LoaderFunctionArgs) => {
-  console.log({ loginAction });
-  if (context.session) {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { session } = await validateSession(request);
+  if (session) {
     throw redirect("/");
   }
+
   return {};
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const body = await request.formData();
+
+  return validateLogin(
+    body.get("email") as string,
+    body.get("password") as string
+  );
 };
 
 export default function LoginPage() {

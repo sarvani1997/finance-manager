@@ -11,13 +11,17 @@ import { useEffect, useState } from "react";
 import { Source, Tag, Transaction } from "@prisma/client";
 
 import { prisma } from "~/.server/prisma";
-import { validateSession } from "~/.server/auth";
+import { assertSignedIn } from "~/.server/auth";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  console.time("session validate");
+  await assertSignedIn(request);
+  console.timeEnd("session validate");
+
   const body = await request.formData();
   const id = body.get("id");
   const tag = body.get("tag");
@@ -32,7 +36,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { user, session, cookie } = await validateSession(request);
+  await assertSignedIn(request);
 
   // if (!session || !user) {
   //   throw redirect("/login", {
@@ -40,14 +44,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   //   });
   // }
 
-  const tags = await prisma.tag.findMany();
-  const sources = await prisma.source.findMany();
-  const transactions = await prisma.transaction.findMany({
-    orderBy: [{ date: "desc" }, { id: "desc" }],
-  });
-  return json([transactions, sources, tags], {
-    headers: cookie ? { "Set-Cookie": cookie } : {},
-  });
+  const [tags, sources, transactions] = await Promise.all([
+    prisma.tag.findMany(),
+    prisma.source.findMany(),
+    prisma.transaction.findMany({
+      orderBy: [{ date: "desc" }, { id: "desc" }],
+    }),
+  ]);
+
+  return json([transactions, sources, tags] as const);
 };
 
 function TableBody({
