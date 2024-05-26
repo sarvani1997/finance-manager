@@ -1,15 +1,15 @@
 import { redirect, LoaderFunctionArgs } from "@remix-run/node";
 import { Form } from "@remix-run/react";
-import { loginAction } from "~/services/auth.server";
+
+import { loginAction } from "~/.server/auth";
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
+  console.log({ loginAction });
   if (context.session) {
     throw redirect("/");
   }
   return {};
 };
-
-export const action = loginAction;
 
 export default function LoginPage() {
   return (

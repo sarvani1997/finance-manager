@@ -10,8 +10,8 @@ import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Source, Tag, Transaction } from "@prisma/client";
 
-import { prisma } from "~/services/prisma.server";
-import { validateSession } from "~/services/auth.server";
+import { prisma } from "~/.server/prisma";
+import { validateSession } from "~/.server/auth";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];

@@ -6,8 +6,8 @@ import {
 import { useLoaderData, Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 
-import { prisma } from "../services/prisma.server";
-import { insertTransactions } from "~/services/handleCsv.server";
+import { prisma } from "~/.server/prisma";
+import { insertTransactions } from "~/.server/handleCsv";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Upload Statement" }];
@@ -23,7 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response("Bad Request", { status: 400 });
   }
 
-  let msg = await insertTransactions(source, await file.text());
+  const msg = await insertTransactions(source, await file.text());
 
   if (msg === "error") {
     return "1";

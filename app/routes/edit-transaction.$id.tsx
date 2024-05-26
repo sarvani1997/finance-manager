@@ -6,7 +6,7 @@ import {
 } from "@remix-run/node";
 import { useLoaderData, Form } from "@remix-run/react";
 
-import { prisma } from "../services/prisma.server";
+import { prisma } from "~/.server/prisma";
 import { useState } from "react";
 
 export const meta: MetaFunction = () => {
