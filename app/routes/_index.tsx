@@ -69,11 +69,7 @@ function TableBody({
   const submit = useSubmit();
   return (
     <tr key={transaction.id} className="bg-white border-b ">
-      <td className="px-6 py-4">
-        {DateTime.fromJSDate(transaction.date)
-          .toLocaleString(DateTime.DATETIME_MED)
-          .slice(0, -7)}
-      </td>
+      <td className="px-6 py-4">{transaction.date.slice(0, -14)}</td>
       <td className="px-6 py-4">
         {transaction.remark
           ? transaction.remark + " (remark)"
