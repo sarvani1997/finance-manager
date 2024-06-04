@@ -26,6 +26,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const msg = await insertTransactions(source, await file.text());
+  console.log({ msg });
 
   if (msg === "error") {
     return "1";

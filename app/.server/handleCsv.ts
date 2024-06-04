@@ -52,13 +52,25 @@ export async function readAmazonCreditCard(data: string) {
       };
     });
 
-    let create = await prisma.transaction.createMany({
-      data: inserts,
-      skipDuplicates: true,
-    });
+    let count = 0
 
-    return create;
+
+    for (let transaction of inserts) {
+      try {
+        await prisma.transaction.create({
+          data: transaction
+        });
+        count = count + 1;
+      } catch (err) {
+        console.log({err})
+      }
+    }
+
+   
+console.log({count})
+    return {count};
   } catch (err) {
+    console.log({err})
     return "error";
   }
 }
@@ -101,12 +113,19 @@ export async function readSbiStatement(data: string) {
       };
     });
 
-    let create = await prisma.transaction.createMany({
-      data: inserts,
-      skipDuplicates: true, // Skip 'Bobo'
-    });
+    let count = 0
 
-    return create;
+    for (let transaction of inserts) {
+      try {
+        await prisma.transaction.create({
+          data: transaction
+        });
+        count = count + 1;
+      } catch (err) {
+        console.log({err})
+      }
+    }
+    return {count};
   } catch (err) {
     return "error";
   }
@@ -157,12 +176,19 @@ export async function readCoralCreditCard(data: string) {
       };
     });
 
-    let create = await prisma.transaction.createMany({
-      data: transactions,
-      skipDuplicates: true, // Skip 'Bobo'
-    });
+    let count = 0
 
-    return create;
+    for (let transaction of transactions) {
+      try {
+        await prisma.transaction.create({
+          data: transaction
+        });
+        count = count + 1;
+      } catch (err) {
+        console.log({err})
+      }
+    }
+    return {count};
   } catch (err) {
     return "error";
   }
@@ -215,12 +241,19 @@ export async function readIciciStatement(data: string) {
       };
     });
 
-    let create = await prisma.transaction.createMany({
-      data: transactions,
-      skipDuplicates: true, // Skip 'Bobo'
-    });
+    let count = 0
 
-    return create;
+    for (let transaction of transactions) {
+      try {
+        await prisma.transaction.create({
+          data: transaction
+        });
+        count = count + 1;
+      } catch (err) {
+        console.log({err})
+      }
+    }
+    return {count};
   } catch (err) {
     return "error";
   }
