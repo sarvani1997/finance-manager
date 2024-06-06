@@ -53,7 +53,7 @@ export default function PploadCsv() {
     <div className=" py-4">
       {d === "0" && (
         <div
-          className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+          className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 "
           role="alert"
         >
           <span className="font-medium">Alert!</span> This Statement is already
@@ -62,7 +62,7 @@ export default function PploadCsv() {
       )}
       {d === "1" && (
         <div
-          className="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+          className="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 "
           role="alert"
         >
           <span className="font-medium">Alert!</span> Please check the format of
@@ -78,7 +78,7 @@ export default function PploadCsv() {
         <div className="mt-4">
           <label
             htmlFor="source"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            className="block mb-2 text-sm font-medium text-gray-900"
           >
             Select an option
           </label>
