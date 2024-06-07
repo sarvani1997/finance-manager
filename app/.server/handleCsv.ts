@@ -103,7 +103,7 @@ export async function readHdfcStatement(data: string) {
       return transaction;
     });
 
-    let inserts = transactions.map((t) => {
+    let inserts = transactions.map((t:any) => {
       const formattedDate = DateTime.fromFormat(t["Date"], "dd/MM/yy");
 
       const amount =
@@ -162,7 +162,7 @@ export async function readSbiStatement(data: string) {
       });
       return transaction;
     });
-    let inserts = transactions.map((t) => {
+    let inserts = transactions.map((t:any) => {
       const formattedDate = DateTime.fromFormat(t["Txn Date"], "d LLL yyyy");
 
       const amount =
@@ -229,7 +229,7 @@ export async function readCoralCreditCard(data: string) {
           !transaction["Transaction Details"].includes("INFINITY PAYMENT")
       );
 
-    transactions = transactions.map((t) => {
+    transactions = transactions.map((t:any) => {
       const formattedDate = DateTime.fromFormat(t["Date"], "dd/MM/yyyy");
 
       return {
@@ -288,7 +288,7 @@ export async function readIciciStatement(data: string) {
       return transaction;
     });
 
-    transactions = transactions.map((t) => {
+    transactions = transactions.map((t:any) => {
       const formattedDate = DateTime.fromFormat(
         t["Transaction Date"],
         "dd/MM/yyyy"
