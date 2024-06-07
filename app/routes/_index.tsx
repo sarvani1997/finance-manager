@@ -311,7 +311,7 @@ export default function Index() {
 
   if (transactions.length === 0) {
     return (
-      <div className="">
+      <div>
         <p className="text-center">
           No Transactions to Display.{" "}
           <a className="text-blue-600" href="/upload-csv">
@@ -354,7 +354,7 @@ export default function Index() {
         </label>
       </div>
       <div className="relative overflow-x-auto mt-6">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500   ">
+        <table className="w-full text-sm text-left rtl:text-right text-gray-500">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-3">
