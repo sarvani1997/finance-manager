@@ -8,10 +8,21 @@ import {
 import { useSubmit, useLoaderData, Form } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import { Source, Tag, Transaction } from "@prisma/client";
+import { Source, Tag } from "@prisma/client";
 
 import { prisma } from "~/.server/prisma";
 import { assertSignedIn } from "~/.server/auth";
+
+interface Transaction {
+  id: number;
+  date: string;
+  amount: number;
+  details: string;
+  sourceId: number;
+  ignore: boolean | null;
+  remark: string | null;
+  tagId: number | null;
+}
 
 export const meta: MetaFunction = () => {
   return [{ title: "Finance Manager" }];
@@ -52,7 +63,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }),
   ]);
 
-  return json([transactions, sources, tags] as const);
+  return json([
+    transactions as unknown as Transaction[],
+    sources,
+    tags,
+  ] as const);
 };
 
 function TableBody({
