@@ -7,7 +7,7 @@ import {
 } from "@remix-run/node";
 import { useSubmit, useLoaderData, Form } from "@remix-run/react";
 import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Source, Tag, Transaction } from "@prisma/client";
 
 import { prisma } from "~/.server/prisma";
@@ -32,7 +32,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       tagId: Number(tag) || null,
     },
   });
-  return redirect("/");
+  return {};
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
