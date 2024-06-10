@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (msg === "error") {
     return "1";
-  } else if (msg.count === 0) {
+  } else if (typeof msg !== "string" && msg.count === 0) {
     return "0";
   }
 

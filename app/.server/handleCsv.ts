@@ -71,7 +71,7 @@ console.log({count})
     return {count};
   } catch (err) {
     console.log({err})
-    return "error";
+    return "error" as const;
   }
 }
 
@@ -134,7 +134,7 @@ export async function readHdfcStatement(data: string) {
     console.log({count})
     return {count};
   } catch (err) {
-    return "error";
+    return "error" as const;
   }
 }
 
@@ -191,7 +191,7 @@ export async function readSbiStatement(data: string) {
     }
     return {count};
   } catch (err) {
-    return "error";
+    return "error" as const;
   }
 }
 
@@ -254,7 +254,7 @@ export async function readCoralCreditCard(data: string) {
     }
     return {count};
   } catch (err) {
-    return "error";
+    return "error" as const;
   }
 }
 
@@ -319,7 +319,7 @@ export async function readIciciStatement(data: string) {
     }
     return {count};
   } catch (err) {
-    return "error";
+    return "error" as const;
   }
 }
 
