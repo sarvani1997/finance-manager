@@ -290,8 +290,6 @@ export default function Index() {
   const [month, setMonth] = useState(DateTime.now().toFormat("MM"));
   const [year, setYear] = useState(DateTime.now().toFormat("yyyy"));
 
-  const [total, setTotal] = useState(0);
-
   const filteredTransactions = filterTransactions(transactions, {
     ignore,
     source,
@@ -300,14 +298,13 @@ export default function Index() {
     year,
   });
 
-  useEffect(() => {
-    let amountArr = filteredTransactions.map((t) => t.amount);
-    let sum = 0;
-    for (let i = 0; i < amountArr.length; i++) {
-      sum += amountArr[i];
-    }
-    setTotal(sum);
-  }, [filteredTransactions]);
+  let total = 0;
+  let amountArr = filteredTransactions.map((t) => t.amount);
+  let sum = 0;
+  for (let i = 0; i < amountArr.length; i++) {
+    sum += amountArr[i];
+  }
+  total = sum;
 
   if (transactions.length === 0) {
     return (
