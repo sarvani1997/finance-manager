@@ -125,6 +125,15 @@ function Filters({
   setMonth,
   year,
   setYear,
+}: {
+  source: string;
+  setSource: (source: string) => void;
+  tag: string;
+  setTag: (tag: string) => void;
+  month: string;
+  setMonth: (month: string) => void;
+  year: string;
+  setYear: (year: string) => void;
 }) {
   const [transactions, sources, tags] = useLoaderData<typeof loader>();
 
@@ -236,7 +245,19 @@ function Filters({
 
 function filterTransactions(
   transactions: Transaction[],
-  { ignore, source, tag, month, year }
+  {
+    ignore,
+    source,
+    tag,
+    month,
+    year,
+  }: {
+    ignore: boolean;
+    source: string;
+    tag: string;
+    month: string;
+    year: string;
+  }
 ) {
   if (ignore) {
     let ignoredTransactions = transactions.filter((t) => !t.ignore);
@@ -340,7 +361,7 @@ export default function Index() {
         <label className="inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            value={ignore}
+            checked={ignore}
             onChange={(e) => setIgnore(!e.target.checked)}
             className="sr-only peer"
           />
