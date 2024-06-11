@@ -78,14 +78,14 @@ console.log({count})
 export async function readHdfcStatement(data: string) {
   try {
     data = data.replaceAll("\r", "");
-    data = data
+    let lines = data
     .split("\n")
     .filter((line) =>  {
       let len = line.split(",").filter((x) => x.length > 0).length
       return len === 6 || len === 7
     }).slice(0,-1)
 
-    data = Object.values(data).filter((x) => !x.includes("*")).join("\n");
+    data = Object.values(lines).filter((x) => !x.includes("*")).join("\n");
     
     const records = (await new Promise((resolve) => {
       csv.parse(data, {}, (err, output) => {
@@ -111,7 +111,7 @@ export async function readHdfcStatement(data: string) {
           ? -Number(t["Deposit Amt."].trim().replaceAll(",", ""))
           : Number(t["Withdrawal Amt."].trim().replaceAll(",", ""));
       return {
-        date: formattedDate.toISO(),
+        date: formattedDate.toISO() as string,
         amount: amount,
         details: t["Narration"],
         sourceId: 5,
@@ -170,7 +170,7 @@ export async function readSbiStatement(data: string) {
           ? -Number(t["Credit"].trim().replaceAll(",", ""))
           : Number(t["        Debit"].trim().replaceAll(",", ""));
       return {
-        date: formattedDate.toISO(),
+        date: formattedDate.toISO() as string,
         amount: amount,
         details: t["Description"],
         sourceId: 2,
@@ -216,33 +216,35 @@ export async function readCoralCreditCard(data: string) {
     let transactions = records
       .slice(1)
       .map((record) => {
-        const transaction = {};
+        const transaction: Transaction = {};
         record.forEach((value, index) => {
-          value = headers[index].startsWith("Amount") ? Number(value) : value;
+          const val = headers[index].startsWith("Amount") ? Number(value) : value;
 
-          transaction[headers[index]] = value;
+          transaction[headers[index]] = val;
         });
         return transaction;
       })
       .filter(
-        (transaction) =>
+        (transaction) => {
+          if (typeof transaction["Transaction Details"] === "number") return true;
           !transaction["Transaction Details"].includes("INFINITY PAYMENT")
+        }
       );
 
-    transactions = transactions.map((t:any) => {
+    let inserts = transactions.map((t:any) => {
       const formattedDate = DateTime.fromFormat(t["Date"], "dd/MM/yyyy");
 
       return {
-        date: formattedDate.toISO(),
-        amount: t["Amount(in Rs)"],
-        details: t["Transaction Details"],
+        date: formattedDate.toISO() as string,
+        amount: t["Amount(in Rs)"] as number,
+        details: t["Transaction Details"] as string,
         sourceId: 3,
       };
     });
 
     let count = 0
 
-    for (let transaction of transactions) {
+    for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
           data: transaction
@@ -277,7 +279,7 @@ export async function readIciciStatement(data: string) {
     const headers = records[0];
 
     let transactions = records.slice(1).map((record) => {
-      const transaction = {};
+      const transaction: Transaction = {};
       record.forEach((value, index) => {
         if (headers[index].trim() === "") {
           return;
@@ -288,26 +290,26 @@ export async function readIciciStatement(data: string) {
       return transaction;
     });
 
-    transactions = transactions.map((t:any) => {
+    let inserts = transactions.map((t) => {
       const formattedDate = DateTime.fromFormat(
-        t["Transaction Date"],
+        t["Transaction Date"] as string,
         "dd/MM/yyyy"
       );
 
       return {
-        date: formattedDate.toISO(),
+        date: formattedDate.toISO() as string,
         amount:
           Number(t["Withdrawal Amount (INR )"]) === 0
             ? -Number(t["Deposit Amount (INR )"])
-            : Number(t["Withdrawal Amount (INR )"]),
-        details: t["Transaction Remarks"],
+            : Number(t["Withdrawal Amount (INR )"]) as number,
+        details: t["Transaction Remarks"] as string,
         sourceId: 4,
       };
     });
 
     let count = 0
 
-    for (let transaction of transactions) {
+    for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
           data: transaction
