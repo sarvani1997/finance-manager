@@ -1,6 +1,6 @@
 import { Argon2id } from "oslo/password";
 
-import { prisma } from "~/services/prisma.server";
+import { prisma } from "~/.server/prisma.js";
 
 export async function createUser(email: string, password: string) {
   const hashedPassword = await new Argon2id().hash(password);
@@ -13,4 +13,4 @@ export async function createUser(email: string, password: string) {
   });
 }
 
-createUser("me@vramana.com", "mysecretlover");
+createUser("me@sarvani.dev", "mysecretloverramana");
