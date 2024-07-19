@@ -52,25 +52,23 @@ export async function readAmazonCreditCard(data: string) {
       };
     });
 
-    let count = 0
-
+    let count = 0;
 
     for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
-          data: transaction
+          data: transaction,
         });
         count = count + 1;
       } catch (err) {
-        console.log({err})
+        console.log({ err });
       }
     }
 
-   
-console.log({count})
-    return {count};
+    console.log({ count });
+    return { count };
   } catch (err) {
-    console.log({err})
+    console.log({ err });
     return "error" as const;
   }
 }
@@ -79,14 +77,17 @@ export async function readHdfcStatement(data: string) {
   try {
     data = data.replaceAll("\r", "");
     let lines = data
-    .split("\n")
-    .filter((line) =>  {
-      let len = line.split(",").filter((x) => x.length > 0).length
-      return len === 6 || len === 7
-    }).slice(0,-1)
+      .split("\n")
+      .filter((line) => {
+        let len = line.split(",").filter((x) => x.length > 0).length;
+        return len === 6 || len === 7;
+      })
+      .slice(0, -1);
 
-    data = Object.values(lines).filter((x) => !x.includes("*")).join("\n");
-    
+    data = Object.values(lines)
+      .filter((x) => !x.includes("*"))
+      .join("\n");
+
     const records = (await new Promise((resolve) => {
       csv.parse(data, {}, (err, output) => {
         resolve(output);
@@ -103,7 +104,7 @@ export async function readHdfcStatement(data: string) {
       return transaction;
     });
 
-    let inserts = transactions.map((t:any) => {
+    let inserts = transactions.map((t: any) => {
       const formattedDate = DateTime.fromFormat(t["Date"], "dd/MM/yy");
 
       const amount =
@@ -118,26 +119,25 @@ export async function readHdfcStatement(data: string) {
       };
     });
 
-    let count = 0
-    console.log({inserts})
+    let count = 0;
+    console.log({ inserts });
 
     for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
-          data: transaction
+          data: transaction,
         });
         count = count + 1;
       } catch (err) {
-        console.log({err})
+        console.log({ err });
       }
     }
-    console.log({count})
-    return {count};
+    console.log({ count });
+    return { count };
   } catch (err) {
     return "error" as const;
   }
 }
-
 
 export async function readSbiStatement(data: string) {
   try {
@@ -162,7 +162,7 @@ export async function readSbiStatement(data: string) {
       });
       return transaction;
     });
-    let inserts = transactions.map((t:any) => {
+    let inserts = transactions.map((t: any) => {
       const formattedDate = DateTime.fromFormat(t["Txn Date"], "d LLL yyyy");
 
       const amount =
@@ -177,19 +177,19 @@ export async function readSbiStatement(data: string) {
       };
     });
 
-    let count = 0
+    let count = 0;
 
     for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
-          data: transaction
+          data: transaction,
         });
         count = count + 1;
       } catch (err) {
-        console.log({err})
+        console.log({ err });
       }
     }
-    return {count};
+    return { count };
   } catch (err) {
     return "error" as const;
   }
@@ -211,6 +211,8 @@ export async function readCoralCreditCard(data: string) {
       });
     })) as string[][];
 
+    console.log({ records });
+
     const headers = records[0];
 
     let transactions = records
@@ -218,20 +220,20 @@ export async function readCoralCreditCard(data: string) {
       .map((record) => {
         const transaction: Transaction = {};
         record.forEach((value, index) => {
-          const val = headers[index].startsWith("Amount") ? Number(value) : value;
+          const val = headers[index].startsWith("Amount")
+            ? Number(value)
+            : value;
 
           transaction[headers[index]] = val;
         });
         return transaction;
       })
-      .filter(
-        (transaction) => {
-          if (typeof transaction["Transaction Details"] === "number") return true;
-          !transaction["Transaction Details"].includes("INFINITY PAYMENT")
-        }
-      );
+      .filter((transaction) => {
+        if (typeof transaction["Transaction Details"] === "number") return true;
+        return !transaction["Transaction Details"].includes("INFINITY PAYMENT");
+      });
 
-    let inserts = transactions.map((t:any) => {
+    let inserts = transactions.map((t: any) => {
       const formattedDate = DateTime.fromFormat(t["Date"], "dd/MM/yyyy");
 
       return {
@@ -242,19 +244,19 @@ export async function readCoralCreditCard(data: string) {
       };
     });
 
-    let count = 0
+    let count = 0;
 
     for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
-          data: transaction
+          data: transaction,
         });
         count = count + 1;
       } catch (err) {
-        console.log({err})
+        console.log({ err });
       }
     }
-    return {count};
+    return { count };
   } catch (err) {
     return "error" as const;
   }
@@ -301,25 +303,25 @@ export async function readIciciStatement(data: string) {
         amount:
           Number(t["Withdrawal Amount (INR )"]) === 0
             ? -Number(t["Deposit Amount (INR )"])
-            : Number(t["Withdrawal Amount (INR )"]) as number,
+            : (Number(t["Withdrawal Amount (INR )"]) as number),
         details: t["Transaction Remarks"] as string,
         sourceId: 4,
       };
     });
 
-    let count = 0
+    let count = 0;
 
     for (let transaction of inserts) {
       try {
         await prisma.transaction.create({
-          data: transaction
+          data: transaction,
         });
         count = count + 1;
       } catch (err) {
-        console.log({err})
+        console.log({ err });
       }
     }
-    return {count};
+    return { count };
   } catch (err) {
     return "error" as const;
   }
@@ -330,7 +332,7 @@ export const statementMap = {
   sbi: readSbiStatement,
   coral_cc: readCoralCreditCard,
   icici_643: readIciciStatement,
-  hdfc:readHdfcStatement
+  hdfc: readHdfcStatement,
 };
 
 const validataSchema = z.object({
@@ -340,7 +342,6 @@ const validataSchema = z.object({
     z.literal("coral_cc"),
     z.literal("icici_643"),
     z.literal("hdfc"),
-
   ]),
   data: z.string(),
 });
