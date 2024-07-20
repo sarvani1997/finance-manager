@@ -108,7 +108,7 @@ export async function readHdfcStatement(data: string) {
       const formattedDate = DateTime.fromFormat(t["Date"], "dd/MM/yy");
 
       const amount =
-        t["Withdrawal Amt."] === " "
+        t["Withdrawal Amt."] === ""
           ? -Number(t["Deposit Amt."].trim().replaceAll(",", ""))
           : Number(t["Withdrawal Amt."].trim().replaceAll(",", ""));
       return {
